@@ -155,7 +155,8 @@ body{background:#080808;font-family:'Barlow',sans-serif;color:#e8e0c8;min-height
 </div>
 
 <script>
-let GEMINI_API_KEY = localStorage.getItem('k3chik_apikey') || '';
+let GEMINI_API_KEY = '';
+try { GEMINI_API_KEY = localStorage.getItem('k3chik_apikey') || ''; } catch(e) {}
 
 const SYSTEM = `Kau adalah AI Juruteknik Kanan pakar dalam repair smartphone dan tablet. Nama kau "K3CHIK BOT" — AI Technician untuk Kechik Gadget Fix.
 
