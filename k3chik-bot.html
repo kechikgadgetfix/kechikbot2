@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>K3CHIK BOT — Kechik Gadget Fix</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080808;font-family:'Barlow',sans-serif;color:#e8e0c8;min-height:100vh;overflow:hidden}
+
+@keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.5}40%{transform:translateY(-6px);opacity:1}}
+@keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
+@keyframes glow-pulse{0%,100%{box-shadow:0 0 8px #FFD700aa,0 0 20px #FFD70044}50%{box-shadow:0 0 16px #FFD700ff,0 0 40px #FFD70088}}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes flicker{0%,100%{opacity:1}92%{opacity:1}93%{opacity:.7}94%{opacity:1}96%{opacity:.85}97%{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.scanline{position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(transparent,#FFD70015,transparent);animation:scanline 6s linear infinite;pointer-events:none;z-index:100}
+.grid-bg{position:fixed;inset:0;background-image:linear-gradient(#FFD70008 1px,transparent 1px),linear-gradient(90deg,#FFD70008 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+.app{display:flex;flex-direction:column;height:100vh;position:relative}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#111100,#0a0a00);border-bottom:1px solid #FFD70033;padding:12px 16px;display:flex;align-items:center;gap:12px;z-index:10;animation:flicker 8s infinite}
+.logo-icon{width:42px;height:42px;background:linear-gradient(135deg,#FFD700,#B8860B);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;animation:glow-pulse 3s ease-in-out infinite;flex-shrink:0}
+.header-title{font-family:'Orbitron',monospace;font-size:clamp(13px,3.5vw,18px);font-weight:900;color:#FFD700;letter-spacing:2px}
+.header-sub{font-family:'Share Tech Mono',monospace;font-size:clamp(9px,2vw,10px);color:#888;letter-spacing:1px;margin-top:2px}
+.status-dot{width:8px;height:8px;background:#00ff88;border-radius:50%;box-shadow:0 0 8px #00ff88;animation:bounce 2s infinite;margin-left:auto;flex-shrink:0}
+
+/* LANDING */
+.landing{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;z-index:10;gap:20px;overflow-y:auto}
+.rex-avatar{width:90px;height:90px;background:linear-gradient(135deg,#1a1500,#0d0d00);border:2px solid #FFD70066;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:42px;animation:glow-pulse 3s ease-in-out infinite}
+.landing-title{font-family:'Orbitron',monospace;font-size:clamp(20px,6vw,32px);font-weight:900;color:#FFD700;text-align:center;letter-spacing:3px}
+.landing-desc{color:#aaa;text-align:center;max-width:360px;line-height:1.7;font-size:14px}
+.device-row{display:flex;gap:10px;width:100%;max-width:400px}
+.device-input{flex:1;background:#111100;border:1px solid #FFD70033;border-radius:8px;padding:10px 14px;color:#e8e0c8;font-family:'Barlow',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.device-input:focus{border-color:#FFD70088}
+.device-input::placeholder{color:#555}
+.start-btn{background:linear-gradient(135deg,#FFD700,#B8860B);color:#000;border:none;border-radius:10px;padding:14px 28px;font-family:'Orbitron',monospace;font-weight:700;font-size:13px;letter-spacing:2px;cursor:pointer;transition:all .2s;width:100%;max-width:400px}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px #FFD70055}
+.feature-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:400px;width:100%}
+.feature-card{background:#111100;border:1px solid #FFD70022;border-radius:10px;padding:12px;font-size:12px;color:#aaa;display:flex;align-items:flex-start;gap:8px}
+.feature-icon{font-size:18px;flex-shrink:0}
+
+/* CHAT */
+.chat-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;z-index:10;position:relative}
+.top-bar{display:flex;align-items:center;padding:8px 16px 0}
+.device-tag{font-family:'Share Tech Mono',monospace;font-size:10px;color:#FFD70066}
+.clear-btn{background:none;border:1px solid #FFD70022;color:#FFD70055;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:'Share Tech Mono',monospace;transition:all .2s;margin-left:auto}
+.clear-btn:hover{border-color:#FFD70066;color:#FFD700}
+.chat-area{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:14px;scrollbar-width:thin;scrollbar-color:#FFD70033 transparent}
+.empty-state{text-align:center;color:#444;font-family:'Share Tech Mono',monospace;font-size:13px;margin-top:30px}
+.empty-state .big{font-size:36px;margin-bottom:12px}
+.bubble-wrap{display:flex;flex-direction:column;animation:fadeSlideIn .3s ease}
+.bubble-wrap.user{align-items:flex-end}
+.bubble-wrap.bot{align-items:flex-start}
+.bubble-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;margin-bottom:4px;padding:0 4px}
+.bubble-wrap.user .bubble-label{color:#FFD70077}
+.bubble-wrap.bot .bubble-label{color:#00ff8877}
+.bubble{max-width:88%;padding:12px 16px;border-radius:14px;font-size:14px;line-height:1.7}
+.bubble.user{background:linear-gradient(135deg,#2a1f00,#1a1200);border:1px solid #FFD70044;color:#ffe88a;border-bottom-right-radius:4px}
+.bubble.bot{background:linear-gradient(135deg,#0d1a0d,#081208);border:1px solid #00ff8833;color:#d4ecd4;border-bottom-left-radius:4px}
+.bubble strong{color:#FFD700}
+
+/* SUGGESTIONS */
+.suggestion-wrap{padding:6px 16px;overflow-x:auto;display:flex;gap:8px;scrollbar-width:none}
+.suggestion-wrap::-webkit-scrollbar{display:none}
+.chip{background:#111100;border:1px solid #FFD70033;border-radius:20px;padding:6px 14px;font-size:12px;color:#FFD70099;cursor:pointer;white-space:nowrap;font-family:'Barlow',sans-serif;transition:all .2s;flex-shrink:0}
+.chip:hover{border-color:#FFD700;color:#FFD700;background:#1a1500}
+
+/* INPUT */
+.input-bar{background:#0d0d00;border-top:1px solid #FFD70022;padding:10px 16px;display:flex;gap:10px}
+.msg-input{flex:1;background:#111100;border:1px solid #FFD70033;border-radius:10px;padding:10px 14px;color:#e8e0c8;font-family:'Barlow',sans-serif;font-size:14px;outline:none;resize:none;height:44px;transition:border-color .2s;line-height:1.5}
+.msg-input:focus{border-color:#FFD70088}
+.msg-input::placeholder{color:#444}
+.send-btn{background:linear-gradient(135deg,#FFD700,#B8860B);border:none;border-radius:10px;width:44px;height:44px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .2s;flex-shrink:0}
+.send-btn:hover:not(:disabled){transform:scale(1.05);box-shadow:0 4px 16px #FFD70055}
+.send-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* TYPING */
+.typing-dot{width:7px;height:7px;border-radius:50%;background:#FFD700;display:inline-block;animation:bounce 1.2s infinite;margin:0 2px}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="scanline"></div>
+  <div class="grid-bg"></div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-icon">🔧</div>
+    <div>
+      <div class="header-title">K3CHIK BOT</div>
+      <div class="header-sub">KECHIK GADGET FIX • AI TECHNICIAN</div>
+    </div>
+    <button onclick="changeKey()" style="background:none;border:1px solid #FFD70033;color:#FFD70066;border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;font-family:'Share Tech Mono',monospace;margin-left:8px;flex-shrink:0">🔑</button>
+    <div class="status-dot"></div>
+  </div>
+
+  <!-- API KEY SCREEN -->
+  <div class="landing" id="apikeyScreen" style="display:none">
+    <div class="rex-avatar">🔑</div>
+    <div class="landing-title" style="font-size:clamp(16px,5vw,24px)">SETUP API KEY</div>
+    <p class="landing-desc">Masukkan Groq API Key kau. Boleh dapat free kat <strong style="color:#FFD700">console.groq.com</strong> → API Keys → Create API Key</p>
+    <input class="device-input" id="apikeyInput" type="password" placeholder="Paste API key kau di sini..." style="width:100%;max-width:400px;padding:12px 16px;font-size:14px"/>
+    <button class="start-btn" onclick="saveApiKey()">💾 SIMPAN & MULA</button>
+    <p style="color:#555;font-size:11px;font-family:'Share Tech Mono',monospace;text-align:center;max-width:360px">Key disimpan dalam browser kau sahaja. Selamat & private.</p>
+  </div>
+
+  <!-- LANDING -->
+  <div class="landing" id="landing">
+    <div class="rex-avatar">🤖</div>
+    <div class="landing-title">K3CHIK BOT</div>
+    <p class="landing-desc">AI juruteknik khas untuk repair smartphone. Describe symptoms, dapat diagnosis + langkah repair terus.</p>
+    <div class="feature-grid">
+      <div class="feature-card"><span class="feature-icon">⚡</span><span>Diagnosis pantas</span></div>
+      <div class="feature-card"><span class="feature-icon">🔬</span><span>IC-level analysis</span></div>
+      <div class="feature-card"><span class="feature-icon">💧</span><span>Water damage guide</span></div>
+      <div class="feature-card"><span class="feature-icon">📱</span><span>Semua brand</span></div>
+    </div>
+    <div class="device-row">
+      <input class="device-input" id="brand" placeholder="Brand (cth: iPhone)"/>
+      <input class="device-input" id="model" placeholder="Model (cth: 13 Pro)"/>
+    </div>
+    <button class="start-btn" onclick="startChat()">⚡ MULA DIAGNOSIS</button>
+  </div>
+
+  <!-- CHAT -->
+  <div class="chat-wrap" id="chatWrap" style="display:none">
+    <div class="top-bar">
+      <span class="device-tag" id="deviceTag"></span>
+      <button class="clear-btn" onclick="resetChat()">⟳ RESET</button>
+    </div>
+    <div class="chat-area" id="chatArea">
+      <div class="empty-state" id="emptyState">
+        <div class="big">🤖</div>
+        Describe symptoms peranti...<br/>
+        <span style="color:#FFD70044">K3CHIK BOT sedia membantu</span>
+      </div>
+    </div>
+    <div class="suggestion-wrap" id="suggWrap">
+      <button class="chip" onclick="useSugg(this)">iPhone 13 takde power, dah tukar battery masih sama</button>
+      <button class="chip" onclick="useSugg(this)">Samsung A54 charging slow, port dah bersih</button>
+      <button class="chip" onclick="useSugg(this)">Xiaomi masuk air, dah dry sekarang boot loop</button>
+      <button class="chip" onclick="useSugg(this)">iPhone XR touch screen tak respond bahagian atas</button>
+      <button class="chip" onclick="useSugg(this)">Oppo Reno takde signal, lepas jatuh</button>
+      <button class="chip" onclick="useSugg(this)">Huawei P30 camera blur walaupun dah lap lens</button>
+    </div>
+    <div class="input-bar">
+      <textarea class="msg-input" id="msgInput" placeholder="Describe masalah peranti... (Enter untuk hantar)" onkeydown="handleKey(event)"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendMsg()" disabled>➤</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let GEMINI_API_KEY = '';
+try { try { GEMINI_API_KEY = localStorage.getItem('k3chik_apikey') || ''; } catch(e) {} } catch(e) {}
+
+const SYSTEM = `Kau adalah AI Juruteknik Kanan pakar dalam repair smartphone dan tablet. Nama kau "K3CHIK BOT" — AI Technician untuk Kechik Gadget Fix.
+
+Kau membantu technician handphone mendiagnosis dan membaiki masalah peranti.
+
+CARA KAU RESPOND:
+- Guna Bahasa Malaysia yang santai tapi profesional
+- Mulakan dengan analisis symptoms
+- Berikan possible causes (tersusun, numbered)
+- Cadangkan diagnostic steps (step-by-step)
+- Cadangkan repair solution
+- Nyatakan jika perlu spare part, nama part + harga anggaran (dalam MYR)
+- Kalau serius atau berisiko tinggi, warn technician
+
+KAU PAKAR DALAM:
+- iPhone & Android motherboard-level repair
+- Charging port, battery, screen issues
+- Water damage diagnosis
+- IC-level fault finding (PMIC, U2, Tristar, Tigris, dll)
+- Baseband, WiFi, Bluetooth issues
+- Boot loop, black screen, no power
+- Touch IC, display connector issues
+- Semua model iPhone (hingga siri 16), Samsung, Xiaomi, Oppo, Vivo, Realme, Huawei
+
+FORMAT JAWAPAN KAU:
+🔍 **DIAGNOSIS:** (ringkasan masalah)
+⚠️ **POSSIBLE CAUSES:** (numbered list)
+🛠️ **LANGKAH DIAGNOSTIC:** (step-by-step)
+✅ **SOLUTION:** (cara repair)
+🔩 **PART DIPERLUKAN:** (jika ada, dengan anggaran harga MYR)
+💡 **PRO TIP:** (tip tambahan berguna)`;
+
+// Show API key screen if no key saved
+window.addEventListener('load', () => {
+  if (!GEMINI_API_KEY) {
+    document.getElementById('landing').style.display = 'none';
+    document.getElementById('apikeyScreen').style.display = 'flex';
+  }
+});
+
+function saveApiKey() {
+  const key = document.getElementById('apikeyInput').value.trim();
+  if (!key) { alert('Sila masukkan API key!'); return; }
+  GEMINI_API_KEY = key;
+  try { localStorage.setItem('k3chik_apikey', key); } catch(e) {}
+  document.getElementById('apikeyScreen').style.display = 'none';
+  document.getElementById('landing').style.display = 'flex';
+}
+
+let history = [];
+let brand = '';
+let model = '';
+let loading = false;
+
+const msgInput = document.getElementById('msgInput');
+const sendBtn = document.getElementById('sendBtn');
+
+msgInput.addEventListener('input', () => {
+  sendBtn.disabled = !msgInput.value.trim() || loading;
+});
+
+function startChat() {
+  brand = document.getElementById('brand').value.trim();
+  model = document.getElementById('model').value.trim();
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('chatWrap').style.display = 'flex';
+  const tag = document.getElementById('deviceTag');
+  tag.textContent = (brand || model) ? '📱 ' + brand + ' ' + model : '';
+  msgInput.focus();
+}
+
+function resetChat() {
+  history = [];
+  brand = '';
+  model = '';
+  document.getElementById('chatArea').innerHTML = `<div class="empty-state" id="emptyState"><div class="big">🤖</div>Describe symptoms peranti...<br/><span style="color:#FFD70044">K3CHIK BOT sedia membantu</span></div>`;
+  document.getElementById('suggWrap').style.display = 'flex';
+  document.getElementById('chatWrap').style.display = 'none';
+  document.getElementById('landing').style.display = 'flex';
+  try { GEMINI_API_KEY = localStorage.getItem('k3chik_apikey') || ''; } catch(e) {}
+  document.getElementById('brand').value = '';
+  document.getElementById('model').value = '';
+  msgInput.value = '';
+  sendBtn.disabled = true;
+}
+
+function changeKey() {
+  try { localStorage.removeItem('k3chik_apikey'); } catch(e) {}
+  GEMINI_API_KEY = '';
+  document.getElementById('chatWrap').style.display = 'none';
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('apikeyScreen').style.display = 'flex';
+  document.getElementById('apikeyInput').value = '';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+}
+
+function useSugg(el) {
+  msgInput.value = el.textContent;
+  sendBtn.disabled = false;
+  document.getElementById('suggWrap').style.display = 'none';
+  sendMsg();
+}
+
+function parseMarkdown(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/\n/g, '<br/>');
+}
+
+function addBubble(role, content) {
+  const es = document.getElementById('emptyState');
+  if (es) es.remove();
+  document.getElementById('suggWrap').style.display = 'none';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'bubble-wrap ' + (role === 'user' ? 'user' : 'bot');
+
+  const label = document.createElement('div');
+  label.className = 'bubble-label';
+  label.textContent = role === 'user' ? '▶ TECHNICIAN' : '◆ K3CHIK BOT';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble ' + (role === 'user' ? 'user' : 'bot');
+  bubble.innerHTML = content;
+
+  wrap.appendChild(label);
+  wrap.appendChild(bubble);
+  document.getElementById('chatArea').appendChild(wrap);
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  return bubble;
+}
+
+function showTyping() {
+  const wrap = document.createElement('div');
+  wrap.className = 'bubble-wrap bot';
+  wrap.id = 'typingWrap';
+
+  const label = document.createElement('div');
+  label.className = 'bubble-label';
+  label.textContent = '◆ K3CHIK BOT';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble bot';
+  bubble.innerHTML = [0,1,2].map(i => `<span class="typing-dot" style="animation-delay:${i*0.2}s"></span>`).join('');
+
+  wrap.appendChild(label);
+  wrap.appendChild(bubble);
+  document.getElementById('chatArea').appendChild(wrap);
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function removeTyping() {
+  const t = document.getElementById('typingWrap');
+  if (t) t.remove();
+}
+
+async function sendMsg(text) {
+  const userText = text || msgInput.value.trim();
+  if (!userText || loading) return;
+
+  loading = true;
+  sendBtn.disabled = true;
+  msgInput.value = '';
+
+  const context = (brand || model) ? `[Peranti: ${brand} ${model}]\n` : '';
+  const fullText = context + userText;
+
+  addBubble('user', userText);
+  history.push({ role: 'user', content: fullText });
+  showTyping();
+
+  try {
+    const groqMessages = [
+      { role: 'system', content: SYSTEM },
+      ...history.map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }))
+    ];
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${GEMINI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        max_tokens: 1000,
+        messages: groqMessages
+      })
+    });
+    const data = await res.json();
+    const reply = data.choices?.[0]?.message?.content || 'Maaf, ada masalah teknikal. Cuba lagi.';
+    removeTyping();
+    addBubble('bot', parseMarkdown(reply));
+    history.push({ role: 'assistant', content: reply });
+  } catch {
+    removeTyping();
+    addBubble('bot', '⚠️ Sambungan terputus. Sila cuba lagi.');
+  } finally {
+    loading = false;
+    sendBtn.disabled = !msgInput.value.trim();
+    msgInput.focus();
+  }
+}
+</script>
+</body>
+</html>
